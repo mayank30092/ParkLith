@@ -40,7 +40,7 @@ function Dashboard() {
   const vacantSlots = slots.filter((slot) => slot.status === "vacant").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-gray-900 to-black text-white p-10">
+    <div className="min-h-screen bg-gradient-to-r from-indigo-900 via-purple-900 to-black text-white p-10">
       {/* Header */}
       <div className="flex justify-between items-center mb-10">
         <h1 className="text-4xl font-bold tracking-wide">

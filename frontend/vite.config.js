@@ -20,12 +20,12 @@ export default defineConfig({
 
         icons: [
           {
-            src: "/frontend/public/P.png",
+            src: "/P.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "/frontend/public/P.png",
+            src: "/P.png",
             sizes: "512x512",
             type: "image/png",
           },
