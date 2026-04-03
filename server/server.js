@@ -75,7 +75,7 @@ Get Slots (React dashboard)
 ----------------------------- */
 
 app.get("/slots", async (req, res) => {
-  const slots = (await Slot.find()).toSorted({ slotId: 1 });
+  const slots = (await Slot.find()).sort({ slotId: 1 });
   res.json(slots);
 });
 
