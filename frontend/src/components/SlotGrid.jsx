@@ -2,28 +2,36 @@ import SlotCard from "./SlotCard";
 
 function SlotGrid({ slots }) {
   return (
-    <div className="flex flex-col items-center w-full">
-      {/* Parking Area */}
-      <div className="bg-gray-800/60 backdrop-blur-lg p-6 md:p-10 rounded-2xl shadow-xl border border-white/10 w-full max-w-5xl">
-        <h2 className="text-xl font-semibold text-white mb-6 md:mb-8 text-center">
-          🅿️ Parking Layout
-        </h2>
+    <div className="w-full flex justify-center">
+      <div className="dashboard-card w-full max-w-5xl">
+        {/* Header */}
 
-        {/* Parking Slots */}
-        <div className="flex justify-center gap-6 md:gap-8 flex-wrap mb-6 md:mb-10">
-          {slots.map((slot) => (
-            <div
-              key={slot.slotId}
-              className="flex flex-col items-center hover:scale-105 transition duration-300"
-            >
-              <SlotCard
-                key={slot.slotId}
-                id={slot.slotId}
-                status={slot.status}
-              />
-            </div>
-          ))}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="section-title flex items-center gap-2">
+            🅿️ Parking Layout
+          </h2>
+
+          <span className="text-sm text-gray-500">{slots.length} slots</span>
         </div>
+
+        {/* Slots */}
+
+        {slots.length === 0 ? (
+          <div className="text-center text-gray-500 py-10">
+            No parking slots available
+          </div>
+        ) : (
+          <div className="flex flex-wrap justify-center gap-8">
+            {slots.map((slot) => (
+              <div
+                key={slot.slotId}
+                className="transition-transform duration-200 hover:scale-105"
+              >
+                <SlotCard id={slot.slotId} status={slot.status} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

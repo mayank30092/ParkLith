@@ -13,8 +13,10 @@ export default defineConfig({
         name: "ParkLith Smart Parking",
         short_name: "ParkLith",
         description: "IoT Smart Parking System Dashboard",
-        theme_color: "#1f1f5d",
-        background_color: "#0f172a",
+
+        theme_color: "#ffffff",
+        background_color: "#ffffff",
+
         display: "standalone",
         start_url: "/",
 

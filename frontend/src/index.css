@@ -1,33 +1,53 @@
-@import "tailwindcss";
+/* ===========================
+   Dashboard UI Styles
+   =========================== */
 
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none;
-  }
+/* reusable dashboard card */
+
+.dashboard-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
 }
 
-.logo-img {
-  width: 35px; /* mobile size */
+/* stat cards */
+
+.stat-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s ease;
 }
 
-@media (min-width: 768px) {
-  .desktop-title {
-    font-size: 3rem;
-  }
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
 
-  .d-h2 {
-    font-size: 2rem;
-  }
+/* section titles */
 
-  .logo-img {
-    width: 80px;
-  }
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
 
-  .desktop-box {
-    padding: 40px;
-  }
+/* availability bar */
 
-  .desktop-text {
-    font-size: 2.5rem;
-  }
+.availability-bar {
+  width: 100%;
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.availability-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  transition: width 0.4s ease;
 }

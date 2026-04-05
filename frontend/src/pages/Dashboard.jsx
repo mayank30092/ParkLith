@@ -33,71 +33,104 @@ function Dashboard() {
   const vacantSlots = slots.filter((s) => s.status === "vacant").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-900 via-gray-900 to-black text-white p-6 flex flex-col items-center">
-      {/* Header */}
-      <div className="flex flex-wrap justify-between items-center w-full max-w-5xl mt-6 mb-8 gap-3">
-        <div className="flex gap-3 items-center">
-          <img src="./P.png" className="logo-img rounded-lg" />
-          <h1 className="text-3xl font-bold tracking-wide desktop-title">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
+      {/* HEADER */}
+
+      <div className="flex justify-between items-center w-full max-w-5xl mb-10 bg-white border border-gray-200 rounded-2xl p-4 shadow-md">
+        <div className="flex items-center gap-3">
+          <img src="./P.png" className="w-10 rounded-lg" />
+          <h1 className="text-2xl font-semibold text-gray-800 tracking-wide">
             ParkLith
           </h1>
         </div>
 
-        <div className="flex items-center gap-3 text-sm">
-          <span className="font-semibold">Server:</span>
-
+        <div
+          className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold border ${
+            serverStatus === "online"
+              ? "bg-green-500/20 text-green-600 border-green-300"
+              : "bg-red-500/20 text-red-600 border-red-300"
+          }`}
+        >
           <span
-            className={`px-3 py-1 rounded-full font-bold ${
-              serverStatus === "online"
-                ? "bg-green-500/20 text-green-400"
-                : "bg-red-500/20 text-red-400"
+            className={`w-2 h-2 rounded-full ${
+              serverStatus === "online" ? "bg-green-500" : "bg-red-500"
             }`}
-          >
-            {serverStatus === "online" ? "🟢 Online" : "🔴 Offline"}
+          ></span>
+
+          {serverStatus === "online" ? "Online" : "Offline"}
+        </div>
+      </div>
+
+      {/* STATS */}
+
+      <div className="grid md:grid-cols-3 gap-6 w-full max-w-5xl mb-10">
+        <div className="stat-card">
+          <div className="flex justify-between items-center mb-2">
+            <p className="text-sm text-gray-500">Total Slots</p>
+            <span className="text-xl">🅿️</span>
+          </div>
+          <p className="text-4xl font-bold text-gray-800">{totalSlots}</p>
+        </div>
+
+        <div className="stat-card">
+          <div className="flex justify-between items-center mb-2">
+            <p className="text-sm text-gray-500">Occupied</p>
+            <span className="text-xl">🚗</span>
+          </div>
+          <p className="text-4xl font-bold text-red-500">{occupiedSlots}</p>
+        </div>
+
+        <div className="stat-card">
+          <div className="flex justify-between items-center mb-2">
+            <p className="text-sm text-gray-500">Vacant</p>
+            <span className="text-xl">✅</span>
+          </div>
+          <p className="text-4xl font-bold text-green-600">{vacantSlots}</p>
+        </div>
+      </div>
+
+      {/* AVAILABILITY */}
+
+      <div className="dashboard-card w-full max-w-5xl mb-10">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="section-title">Parking Availability</h3>
+
+          <span className="text-sm text-gray-500">
+            {vacantSlots} / {totalSlots} available
           </span>
         </div>
-      </div>
 
-      {/* Info Panel */}
-      <div className="flex flex-wrap justify-center gap-6 w-full max-w-5xl mb-8">
-        <div className="flex flex-col w-full bg-white/10 backdrop-blur-lg p-6 rounded-xl shadow-lg border border-white/20">
-          <p className="text-gray-300 text-sm">Last Update</p>
-          <p className="text-xl font-bold">{lastUpdated || "--"}</p>
-        </div>
-
-        <div className="flex flex-col w-full bg-white/10 backdrop-blur-lg p-6 rounded-xl shadow-lg border border-white/20">
-          <p className="text-gray-300 text-sm">Refresh Rate</p>
-          <p className="text-xl font-bold">5 sec</p>
-        </div>
-
-        <div className="desktop-only flex flex-col w-full bg-white/10 backdrop-blur-lg p-6 rounded-xl shadow-lg border border-white/20">
-          <p className="text-gray-300 text-sm">System</p>
-          <p className="text-xl font-bold text-blue-400">ESP32 Active</p>
+        <div className="availability-bar">
+          <div
+            className="availability-fill"
+            style={{ width: `${(vacantSlots / totalSlots) * 100 || 0}%` }}
+          ></div>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="flex flex-wrap justify-center gap-6 w-full max-w-5xl mb-10 ">
-        <div className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 p-6 rounded-xl shadow-xl desktop-box">
-          <h2 className="text-lg font-semibold d-h2">Total Slots</h2>
-          <p className="text-3xl desktop-text font-bold mt-2">{totalSlots}</p>
+      {/* SYSTEM INFO */}
+
+      <div className="dashboard-card w-full max-w-5xl mb-10">
+        <h3 className="section-title mb-4">System Info</h3>
+
+        <div className="flex justify-between mb-3 text-gray-600">
+          <span>Last Update</span>
+          <span className="font-medium text-gray-800">
+            {lastUpdated || "--"}
+          </span>
         </div>
 
-        <div className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 p-6 rounded-xl shadow-xl desktop-box">
-          <h2 className="text-lg font-semibold d-h2">Occupieds</h2>
-          <p className="text-3xl desktop-text font-bold mt-2">
-            {occupiedSlots}
-          </p>
-        </div>
-
-        <div className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 p-6 rounded-xl shadow-xl desktop-box">
-          <h2 className="text-lg font-semibold d-h2">Vacants</h2>
-          <p className="text-3xl desktop-text font-bold mt-2">{vacantSlots}</p>
+        <div className="flex justify-between text-gray-600">
+          <span>Refresh Rate</span>
+          <span className="font-medium text-gray-800">5 sec</span>
         </div>
       </div>
 
-      {/* Parking Layout */}
-      <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-xl w-full max-w-5xl">
+      {/* PARKING LAYOUT */}
+
+      <div className="dashboard-card w-full max-w-5xl">
+        <h2 className="section-title mb-6">Parking Layout</h2>
+
         <SlotGrid slots={slots} />
       </div>
     </div>
