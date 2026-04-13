@@ -1,140 +1,275 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import SlotGrid from "../components/SlotGrid";
+import { OccupancyRing, HistoryBarChart } from "../components/OccupancyChart";
+import ThemeToggle from "../components/ThemeToggle";
 
-function Dashboard() {
+const MAX_HISTORY = 20;
+
+function formatTime(date) {
+  return date.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+}
+
+function formatTimeShort(date) {
+  return date.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+export default function Dashboard() {
   const [slots, setSlots] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [serverStatus, setServerStatus] = useState("offline");
+  const [history, setHistory] = useState([]);
+  const [fetchCount, setFetchCount] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [now, setNow] = useState(new Date());
+  const timeoutRef = useRef(null);
+
+  // clock tick
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const fetchSlots = async () => {
+    setIsRefreshing(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/slots`);
+      const apiBase = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;
+      const res = await fetch(`${apiBase}/slots`);
       if (!res.ok) throw new Error("Server error");
 
       const data = await res.json();
+      const trimmed = data.slice(0, 3);
 
-      setSlots(data.slice(0, 3));
-      setLastUpdated(new Date().toLocaleTimeString());
+      setSlots(trimmed);
+      setLastUpdated(new Date());
       setServerStatus("online");
-    } catch (error) {
-      console.error(error);
+      setFetchCount((c) => c + 1);
+
+      const occ = trimmed.filter((s) => s.status === "occupied").length;
+      const vac = trimmed.filter((s) => s.status === "vacant").length;
+
+      setHistory((prev) =>
+        [
+          ...prev,
+          { time: formatTimeShort(new Date()), occupied: occ, vacant: vac },
+        ].slice(-MAX_HISTORY),
+      );
+    } catch (err) {
+      console.error(err);
       setServerStatus("offline");
+    } finally {
+      timeoutRef.current = setTimeout(() => setIsRefreshing(false), 400);
     }
   };
 
   useEffect(() => {
     fetchSlots();
-    const interval = setInterval(fetchSlots, 5000);
-    return () => clearInterval(interval);
+    const id = setInterval(fetchSlots, 5000);
+    return () => {
+      clearInterval(id);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, []);
 
+  // derived
   const totalSlots = slots.length;
   const occupiedSlots = slots.filter((s) => s.status === "occupied").length;
   const vacantSlots = slots.filter((s) => s.status === "vacant").length;
+  const occupancyPct =
+    totalSlots > 0 ? Math.round((occupiedSlots / totalSlots) * 100) : 0;
+
+  const trend =
+    history.length >= 2
+      ? history[history.length - 1].occupied -
+        history[history.length - 2].occupied
+      : 0;
+  const trendLabel =
+    trend > 0
+      ? `↑ ${trend} since last poll`
+      : trend < 0
+        ? `↓ ${Math.abs(trend)} since last poll`
+        : "— no change";
+
+  const fillLevel =
+    occupancyPct > 66 ? "high" : occupancyPct > 33 ? "mid" : "low";
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      {/* HEADER */}
-
-      <div className="flex justify-between items-center w-full max-w-5xl mb-10 bg-white border border-gray-200 rounded-2xl p-4 shadow-md">
-        <div className="flex items-center gap-3">
-          <img src="./P.png" className="w-10 rounded-lg" />
-          <h1 className="text-2xl font-semibold text-gray-800 tracking-wide">
-            ParkLith
-          </h1>
-        </div>
-
-        <div
-          className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold border ${
-            serverStatus === "online"
-              ? "bg-green-500/20 text-green-600 border-green-300"
-              : "bg-red-500/20 text-red-600 border-red-300"
-          }`}
-        >
-          <span
-            className={`w-2 h-2 rounded-full ${
-              serverStatus === "online" ? "bg-green-500" : "bg-red-500"
-            }`}
-          ></span>
-
-          {serverStatus === "online" ? "Online" : "Offline"}
-        </div>
-      </div>
-
-      {/* STATS */}
-
-      <div className="grid md:grid-cols-3 gap-6 w-full max-w-5xl mb-10">
-        <div className="stat-card">
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-sm text-gray-500">Total Slots</p>
-            <span className="text-xl">🅿️</span>
+    <div className="pk-page">
+      {/* ── HEADER ──────────────────────────────────────────── */}
+      <header className="pk-header">
+        <div className="pk-header-left">
+          <div className="pk-logo-icon">🅿</div>
+          <div>
+            <div className="pk-logo-name">ParkLith</div>
+            <div className="pk-logo-sub">Campus · 3 Sensors</div>
           </div>
-          <p className="text-4xl font-bold text-gray-800">{totalSlots}</p>
         </div>
 
-        <div className="stat-card">
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-sm text-gray-500">Occupied</p>
-            <span className="text-xl">🚗</span>
-          </div>
-          <p className="text-4xl font-bold text-red-500">{occupiedSlots}</p>
-        </div>
-
-        <div className="stat-card">
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-sm text-gray-500">Vacant</p>
-            <span className="text-xl">✅</span>
-          </div>
-          <p className="text-4xl font-bold text-green-600">{vacantSlots}</p>
-        </div>
-      </div>
-
-      {/* AVAILABILITY */}
-
-      <div className="dashboard-card w-full max-w-5xl mb-10">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="section-title">Parking Availability</h3>
-
-          <span className="text-sm text-gray-500">
-            {vacantSlots} / {totalSlots} available
-          </span>
-        </div>
-
-        <div className="availability-bar">
+        <div className="pk-header-right">
+          {/* live clock */}
           <div
-            className="availability-fill"
-            style={{ width: `${(vacantSlots / totalSlots) * 100 || 0}%` }}
-          ></div>
+            style={{
+              fontFamily: "var(--f-mono)",
+              fontSize: "0.65rem",
+              color: "var(--c-text-2)",
+              letterSpacing: "0.1em",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+            }}
+          >
+            <span style={{ color: "var(--c-text-1)", fontSize: "0.75rem" }}>
+              {formatTime(now)}
+            </span>
+            <span>
+              {now.toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+              })}
+            </span>
+          </div>
+
+          <button
+            className="pk-download-btn"
+            onClick={() =>
+              window.open(
+                "https://expo.dev/artifacts/eas/dJE8DvtVyq9vq6HKauM1QB.apk",
+                "_blank",
+              )
+            }
+          >
+            ⬇ APK
+          </button>
+
+          <ThemeToggle />
+
+          <div className={`pk-spinner ${isRefreshing ? "spinning" : ""}`} />
+
+          <div className={`pk-status-pill ${serverStatus}`}>
+            <span className="pk-status-dot" />
+            {serverStatus === "online" ? "Live" : "Offline"}
+          </div>
+        </div>
+      </header>
+
+      {/* ── STAT CARDS ──────────────────────────────────────── */}
+      <div className="pk-stat-grid">
+        <div className="pk-stat-card glow-slate">
+          <div className="pk-stat-row">
+            <span className="pk-stat-label">Total Slots</span>
+            <span className="pk-stat-icon">📡</span>
+          </div>
+          <div className="pk-stat-value slate">{totalSlots}</div>
+          <div className="pk-stat-sub">ultrasonic sensors</div>
+        </div>
+
+        <div className="pk-stat-card glow-red">
+          <div className="pk-stat-row">
+            <span className="pk-stat-label">Occupied</span>
+            <span className="pk-stat-icon">🚗</span>
+          </div>
+          <div className="pk-stat-value red">{occupiedSlots}</div>
+          <div
+            className={`pk-stat-sub ${trend > 0 ? "trend-up" : trend < 0 ? "trend-down" : ""}`}
+          >
+            {trendLabel}
+          </div>
+        </div>
+
+        <div className="pk-stat-card glow-green">
+          <div className="pk-stat-row">
+            <span className="pk-stat-label">Vacant</span>
+            <span className="pk-stat-icon">✅</span>
+          </div>
+          <div className="pk-stat-value green">{vacantSlots}</div>
+          <div className="pk-stat-sub">{occupancyPct}% full</div>
         </div>
       </div>
 
-      {/* SYSTEM INFO */}
+      {/* ── CHARTS ──────────────────────────────────────────── */}
+      <div className="pk-charts-row">
+        <div className="pk-card">
+          <div className="pk-card-title">
+            Occupancy <span>live</span>
+          </div>
+          <OccupancyRing occupied={occupiedSlots} total={totalSlots} />
+        </div>
 
-      <div className="dashboard-card w-full max-w-5xl mb-10">
-        <h3 className="section-title mb-4">System Info</h3>
+        <div className="pk-card">
+          <div className="pk-card-title">
+            Session History
+            <span>last {history.length} polls · 5 s</span>
+          </div>
+          <HistoryBarChart history={history} />
+        </div>
+      </div>
 
-        <div className="flex justify-between mb-3 text-gray-600">
-          <span>Last Update</span>
-          <span className="font-medium text-gray-800">
-            {lastUpdated || "--"}
+      {/* ── AVAILABILITY BAR ────────────────────────────────── */}
+      <div className="pk-card">
+        <div className="pk-avail-header">
+          <span className="pk-avail-label">Availability</span>
+          <span className="pk-avail-count">
+            <span className="free">{vacantSlots}</span>
+            {" / "}
+            <span className="total">{totalSlots}</span>
+            {" free"}
           </span>
         </div>
-
-        <div className="flex justify-between text-gray-600">
-          <span>Refresh Rate</span>
-          <span className="font-medium text-gray-800">5 sec</span>
+        <div className="pk-avail-track">
+          <div
+            className={`pk-avail-fill ${fillLevel}`}
+            style={{ width: `${occupancyPct}%` }}
+          />
+        </div>
+        <div className="pk-avail-ticks">
+          <span>0%</span>
+          <span className={`pct ${fillLevel}`}>{occupancyPct}% occupied</span>
+          <span>100%</span>
         </div>
       </div>
 
-      {/* PARKING LAYOUT */}
-
-      <div className="dashboard-card w-full max-w-5xl">
-        <h2 className="section-title mb-6">Parking Layout</h2>
-
+      {/* ── SLOT GRID ───────────────────────────────────────── */}
+      <div className="pk-card">
+        <div className="pk-slots-header">
+          <span className="pk-slots-title">Parking Layout</span>
+          <span className="pk-slots-count">{slots.length} sensors active</span>
+        </div>
         <SlotGrid slots={slots} />
+      </div>
+
+      {/* ── SYSTEM FOOTER ───────────────────────────────────── */}
+      <div className="pk-card">
+        <div className="pk-footer">
+          <div className="pk-footer-item">
+            <div className="pk-footer-label">Last Poll</div>
+            <div className="pk-footer-value">
+              {lastUpdated ? formatTime(lastUpdated) : "—"}
+            </div>
+          </div>
+          <div className="pk-footer-item">
+            <div className="pk-footer-label">Poll Count</div>
+            <div className="pk-footer-value">{fetchCount}</div>
+          </div>
+          <div className="pk-footer-item">
+            <div className="pk-footer-label">Interval</div>
+            <div className="pk-footer-value">5 000 ms</div>
+          </div>
+          <div className="pk-footer-item">
+            <div className="pk-footer-label">Endpoint</div>
+            <div className="pk-footer-value muted">
+              {import.meta.env.VITE_API_URL || "localhost"}/slots
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-export default Dashboard;

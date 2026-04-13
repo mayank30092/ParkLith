@@ -35,4 +35,14 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    proxy: {
+      // Proxy /slots requests to the remote backend in development to avoid CORS
+      "^/slots": {
+        target: "https://parklith-backend-fohb.onrender.com",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 });
