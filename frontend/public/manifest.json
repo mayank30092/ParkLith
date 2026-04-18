@@ -1,6 +1,6 @@
 {
-  "name": "IOT Dashboard",
-  "short_name": "Dashboard",
+  "name": "Parklith IOT Dashboard",
+  "short_name": "Parklith",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#000000",
