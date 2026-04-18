@@ -118,7 +118,7 @@ export function HistoryBarChart({ history }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-flex-end gap-1 h-[88px] overflow-x-auto pb-1">
+      <div className="flex items-end gap-1 h-[88px] overflow-x-auto pb-1">
         {history.map((point, i) => {
           const occH = Math.max(
             3,

@@ -28,7 +28,11 @@ export default function ThemeToggle() {
       aria-pressed={light}
       title={light ? "Switch to dark theme" : "Switch to light theme"}
       aria-label={light ? "Switch to dark theme" : "Switch to light theme"}
-      className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors text-sm"
+      className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-sm ${
+        light
+          ? "bg-gray-800/10 hover:bg-gray-800/20 text-gray-800"
+          : "bg-white/20 hover:bg-white/30 text-white"
+      }`}
     >
       {light ? "🌙" : "🌞"}
     </button>
