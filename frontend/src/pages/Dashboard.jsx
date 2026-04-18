@@ -32,7 +32,6 @@ export default function Dashboard() {
   const [now, setNow] = useState(new Date());
   const timeoutRef = useRef(null);
 
-  // clock tick
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
@@ -79,7 +78,6 @@ export default function Dashboard() {
     };
   }, []);
 
-  // derived
   const totalSlots = slots.length;
   const occupiedSlots = slots.filter((s) => s.status === "occupied").length;
   const vacantSlots = slots.filter((s) => s.status === "vacant").length;
@@ -99,46 +97,41 @@ export default function Dashboard() {
         : "— no change";
 
   const fillLevel =
-    occupancyPct > 66 ? "high" : occupancyPct > 33 ? "mid" : "low";
+    occupancyPct > 66
+      ? "bg-red-500"
+      : occupancyPct > 33
+        ? "bg-yellow-400"
+        : "bg-blue-600";
 
   return (
-    <div className="pk-page">
-      {/* ── HEADER ──────────────────────────────────────────── */}
-      <header className="pk-header">
-        <div className="pk-header-left">
-          <div className="pk-logo-icon">🅿</div>
+    <div className="min-h-screen bg-slate-100 p-3 sm:p-4 md:p-6">
+      {/* ── HEADER ── */}
+      <header className="bg-blue-700 text-white rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-white text-blue-700 font-bold text-sm w-9 h-9 rounded-xl flex items-center justify-center shrink-0">
+            P
+          </div>
           <div>
-            <div className="pk-logo-name">ParkLith</div>
-            <div className="pk-logo-sub">Campus · 3 Sensors</div>
+            <div className="text-base font-semibold leading-tight">
+              ParkLith
+            </div>
+            <div className="text-xs text-blue-200">Campus · 3 Sensors</div>
           </div>
         </div>
 
-        <div className="pk-header-right">
-          {/* live clock */}
-          <div
-            style={{
-              fontFamily: "var(--f-mono)",
-              fontSize: "0.65rem",
-              color: "var(--c-text-2)",
-              letterSpacing: "0.1em",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-end",
-            }}
-          >
-            <span style={{ color: "var(--c-text-1)", fontSize: "0.75rem" }}>
-              {formatTime(now)}
-            </span>
-            <span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="text-right font-mono">
+            <div className="text-sm font-semibold">{formatTime(now)}</div>
+            <div className="text-xs text-blue-200">
               {now.toLocaleDateString("en-IN", {
                 day: "2-digit",
                 month: "short",
               })}
-            </span>
+            </div>
           </div>
 
           <button
-            className="pk-download-btn"
+            className="bg-white text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
             onClick={() =>
               window.open(
                 "https://expo.dev/artifacts/eas/dJE8DvtVyq9vq6HKauM1QB.apk",
@@ -151,122 +144,161 @@ export default function Dashboard() {
 
           <ThemeToggle />
 
-          <div className={`pk-spinner ${isRefreshing ? "spinning" : ""}`} />
+          {isRefreshing && (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          )}
 
-          <div className={`pk-status-pill ${serverStatus}`}>
-            <span className="pk-status-dot" />
+          <div
+            className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${
+              serverStatus === "online"
+                ? "bg-green-500 text-white"
+                : "bg-red-500 text-white"
+            }`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full bg-white ${
+                serverStatus === "online" ? "animate-pulse" : ""
+              }`}
+            />
             {serverStatus === "online" ? "Live" : "Offline"}
           </div>
         </div>
       </header>
 
-      {/* ── STAT CARDS ──────────────────────────────────────── */}
-      <div className="pk-stat-grid">
-        <div className="pk-stat-card glow-slate">
-          <div className="pk-stat-row">
-            <span className="pk-stat-label">Total Slots</span>
-            <span className="pk-stat-icon">📡</span>
+      {/* ── STAT CARDS ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div className="bg-white rounded-2xl p-4 border border-slate-200">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+              Total Slots
+            </span>
+            <span className="text-base">📡</span>
           </div>
-          <div className="pk-stat-value slate">{totalSlots}</div>
-          <div className="pk-stat-sub">ultrasonic sensors</div>
+          <div className="text-3xl font-bold text-blue-700">{totalSlots}</div>
+          <div className="text-xs text-slate-400 mt-1">ultrasonic sensors</div>
         </div>
 
-        <div className="pk-stat-card glow-red">
-          <div className="pk-stat-row">
-            <span className="pk-stat-label">Occupied</span>
-            <span className="pk-stat-icon">🚗</span>
+        <div className="bg-white rounded-2xl p-4 border border-slate-200">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+              Occupied
+            </span>
+            <span className="text-base">🚗</span>
           </div>
-          <div className="pk-stat-value red">{occupiedSlots}</div>
+          <div className="text-3xl font-bold text-red-500">{occupiedSlots}</div>
           <div
-            className={`pk-stat-sub ${trend > 0 ? "trend-up" : trend < 0 ? "trend-down" : ""}`}
+            className={`text-xs mt-1 ${
+              trend > 0
+                ? "text-red-500"
+                : trend < 0
+                  ? "text-green-500"
+                  : "text-slate-400"
+            }`}
           >
             {trendLabel}
           </div>
         </div>
 
-        <div className="pk-stat-card glow-green">
-          <div className="pk-stat-row">
-            <span className="pk-stat-label">Vacant</span>
-            <span className="pk-stat-icon">✅</span>
+        <div className="bg-white rounded-2xl p-4 border border-slate-200">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+              Vacant
+            </span>
+            <span className="text-base">✅</span>
           </div>
-          <div className="pk-stat-value green">{vacantSlots}</div>
-          <div className="pk-stat-sub">{occupancyPct}% full</div>
+          <div className="text-3xl font-bold text-green-600">{vacantSlots}</div>
+          <div className="text-xs text-slate-400 mt-1">
+            {occupancyPct}% full
+          </div>
         </div>
       </div>
 
-      {/* ── CHARTS ──────────────────────────────────────────── */}
-      <div className="pk-charts-row">
-        <div className="pk-card">
-          <div className="pk-card-title">
-            Occupancy <span>live</span>
+      {/* ── CHARTS ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div className="bg-white rounded-2xl p-4 border border-slate-200">
+          <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">
+            Occupancy{" "}
+            <span className="text-blue-500 font-normal normal-case">live</span>
           </div>
           <OccupancyRing occupied={occupiedSlots} total={totalSlots} />
         </div>
 
-        <div className="pk-card">
-          <div className="pk-card-title">
-            Session History
-            <span>last {history.length} polls · 5 s</span>
+        <div className="bg-white rounded-2xl p-4 border border-slate-200">
+          <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">
+            Session History{" "}
+            <span className="text-blue-500 font-normal normal-case">
+              last {history.length} polls · 5s
+            </span>
           </div>
           <HistoryBarChart history={history} />
         </div>
       </div>
 
-      {/* ── AVAILABILITY BAR ────────────────────────────────── */}
-      <div className="pk-card">
-        <div className="pk-avail-header">
-          <span className="pk-avail-label">Availability</span>
-          <span className="pk-avail-count">
-            <span className="free">{vacantSlots}</span>
+      {/* ── AVAILABILITY BAR ── */}
+      <div className="bg-white rounded-2xl p-4 border border-slate-200 mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-semibold text-slate-700">
+            Availability
+          </span>
+          <span className="text-sm text-slate-500">
+            <span className="text-green-600 font-semibold">{vacantSlots}</span>
             {" / "}
-            <span className="total">{totalSlots}</span>
+            <span className="text-blue-700 font-semibold">{totalSlots}</span>
             {" free"}
           </span>
         </div>
-        <div className="pk-avail-track">
+        <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden mb-2">
           <div
-            className={`pk-avail-fill ${fillLevel}`}
+            className={`h-full rounded-full transition-all duration-500 ${fillLevel}`}
             style={{ width: `${occupancyPct}%` }}
           />
         </div>
-        <div className="pk-avail-ticks">
+        <div className="flex justify-between text-xs text-slate-400">
           <span>0%</span>
-          <span className={`pct ${fillLevel}`}>{occupancyPct}% occupied</span>
+          <span className="font-medium text-blue-600">
+            {occupancyPct}% occupied
+          </span>
           <span>100%</span>
         </div>
       </div>
 
-      {/* ── SLOT GRID ───────────────────────────────────────── */}
-      <div className="pk-card">
-        <div className="pk-slots-header">
-          <span className="pk-slots-title">Parking Layout</span>
-          <span className="pk-slots-count">{slots.length} sensors active</span>
+      {/* ── SLOT GRID ── */}
+      <div className="bg-white rounded-2xl p-4 border border-slate-200 mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+            Parking Layout
+          </span>
+          <span className="text-xs text-slate-400">
+            {slots.length} sensors active
+          </span>
         </div>
         <SlotGrid slots={slots} />
       </div>
 
-      {/* ── SYSTEM FOOTER ───────────────────────────────────── */}
-      <div className="pk-card">
-        <div className="pk-footer">
-          <div className="pk-footer-item">
-            <div className="pk-footer-label">Last Poll</div>
-            <div className="pk-footer-value">
+      {/* ── FOOTER ── */}
+      <div className="bg-white rounded-2xl p-4 border border-slate-200">
+        <div className="grid grid-cols-3 divide-x divide-slate-200 text-center">
+          <div className="px-2">
+            <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">
+              Last Poll
+            </div>
+            <div className="text-sm font-semibold text-slate-700 font-mono">
               {lastUpdated ? formatTime(lastUpdated) : "—"}
             </div>
           </div>
-          <div className="pk-footer-item">
-            <div className="pk-footer-label">Poll Count</div>
-            <div className="pk-footer-value">{fetchCount}</div>
-          </div>
-          <div className="pk-footer-item">
-            <div className="pk-footer-label">Interval</div>
-            <div className="pk-footer-value">5 000 ms</div>
-          </div>
-          <div className="pk-footer-item">
-            <div className="pk-footer-label">Endpoint</div>
-            <div className="pk-footer-value muted">
-              {import.meta.env.VITE_API_URL || "localhost"}/slots
+          <div className="px-2">
+            <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">
+              Poll Count
             </div>
+            <div className="text-sm font-semibold text-slate-700">
+              {fetchCount}
+            </div>
+          </div>
+          <div className="px-2">
+            <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">
+              Interval
+            </div>
+            <div className="text-sm font-semibold text-slate-700">5 000 ms</div>
           </div>
         </div>
       </div>

@@ -6,7 +6,6 @@ export default function ThemeToggle() {
       const v = localStorage.getItem("parklith:theme");
       if (v) return v === "light";
     } catch (_) {}
-    // default: respect system preference
     return (
       window.matchMedia?.("(prefers-color-scheme: light)").matches ?? false
     );
@@ -25,11 +24,11 @@ export default function ThemeToggle() {
 
   return (
     <button
-      className="theme-toggle"
       onClick={() => setLight((s) => !s)}
       aria-pressed={light}
       title={light ? "Switch to dark theme" : "Switch to light theme"}
       aria-label={light ? "Switch to dark theme" : "Switch to light theme"}
+      className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors text-sm"
     >
       {light ? "🌙" : "🌞"}
     </button>
