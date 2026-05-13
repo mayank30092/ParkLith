@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Parklith",
+    "slug": "parklith-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a1a2e"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.parklith.app"
+    },
+    "android": {
+      "package": "com.mayank3009.parklithapp",
+      "versionCode": 3,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a1a2e"
+      }
+    },
+    "scheme": "parklith",
+    "plugins": ["expo-router", "expo-font"],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d3673ef6-674b-4686-802c-b289f741422a"
+      }
+    }
+  }
+}
