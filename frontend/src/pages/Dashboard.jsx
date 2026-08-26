@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import SlotGrid from "../components/SlotGrid";
 import { OccupancyRing, HistoryBarChart } from "../components/OccupancyChart";
-import ThemeToggle from "../components/ThemeToggle";
 
 const MAX_HISTORY = 20;
 
@@ -129,21 +128,6 @@ export default function Dashboard() {
               })}
             </div>
           </div>
-
-          <button
-            className="bg-white text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-            onClick={() =>
-              window.open(
-                "https://expo.dev/artifacts/eas/dJE8DvtVyq9vq6HKauM1QB.apk",
-                "_blank",
-              )
-            }
-          >
-            ⬇ APK
-          </button>
-
-          <ThemeToggle />
-
           {isRefreshing && (
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
           )}
